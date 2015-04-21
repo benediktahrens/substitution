@@ -276,114 +276,98 @@ Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
 Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
-
+Definition bracket (T : Ptd) (τ : AlgStruct T) : UU := 
+  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
+   (Σ h : (U T) ∙ (U Z)  ⇒ U T,
+     (#U f = pre_whisker (U Z) (ptd_pt _ (T)) ;; h) ×
+     (θ (U T ⊗ Z) ;; #H h ;; τ   = pre_whisker (U Z) (τ ) ;;  h )).
 (*
-Definition bracket (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : functor_composite (U Z) (U T)  ⟶ (U T),
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 T) (pr1 (U Z) c) ;; h c) ×
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; h c)).
-
-Definition bracket' (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 T) (pr1 (U Z) c) ;; pr1 h c) ×
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; pr1 h c)).
-
-Definition bracket'' (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
-     (∀ c : C, pr1 (θ (prodcatpair (U T) Z))  c ;; pr1 (#H h) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; pr1 h c)).
-*)
-Definition bracket (T : Alg) : UU := 
-  ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
-   (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (#U f = pre_whisker (U Z) (ptd_pt _ (pr1 T)) ;; h) ×
-     (θ (U T ⊗ Z) ;; #H h ;; τ _  = pre_whisker (U Z) (τ _) ;;  h )).
-
-Definition hss : UU := Σ T : Alg, bracket T.
+Definition hss : UU := Σ T : Alg, bracket (pr1 T)(pr2 T).
 
 Coercion AlgFromhss (T : hss) : Alg := pr1 T.
 
 Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : (U T) ∙ (U Z) ⇒ U T
   := pr1 (pr1 (pr2 T Z f)).
+*)
 
+Definition fbracket (T : Ptd) (τ : AlgStruct T) (b : bracket T τ) 
+  {Z : Ptd} (f : Z ⇒ T) 
+  : (U T) ∙ (U Z) ⇒ U T
+  := pr1 (pr1 (b Z f)).
 
-Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
+Definition fbracket_unique_pointwise (T : Ptd) (τ : AlgStruct T) (b : bracket T τ)
+   {Z : Ptd} (f : Z ⇒ T) 
   : ∀ (α : functor_composite (U Z)(U T) ⟶ pr1 (U T)),
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 (pr1 T)) (pr1 (U Z) c) ;; α c) →
-     (∀ c : C, pr1 (θ (U T ⊗ Z))  c ;; pr1 (#H α) c ;; τ _ c = 
-        τ _ (pr1 (U Z) c) ;; α c) → α = fbracket T f.
+     (∀ c : C, pr1 (#U f) c = ptd_pt _ (T) (pr1 (U Z) c) ;; α c) →
+     (∀ c : C, pr1 (θ (U T ⊗ Z))  c ;; pr1 (#H α) c ;; pr1 τ c = 
+        pr1 τ  (pr1 (U Z) c) ;; α c) → α = fbracket T τ b f.
 Proof.
   intros α H1 H2.
   apply path_to_ctr.
   split; apply nat_trans_eq; assumption.
 Qed.
 
-Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ T) 
+Definition fbracket_unique (T : Ptd) (τ : AlgStruct T) (b : bracket T τ) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
-     (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
-     (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
-   → α = fbracket T f.
+     (#U f = pre_whisker (U Z) (ptd_pt _ ((T))) ;; α) →
+     (θ (U T ⊗ Z) ;; #H α ;;  τ  = pre_whisker (U Z) (τ ) ;; α) 
+   → α = fbracket T τ b f.
 Proof.
   intros α H1 H2.
   apply path_to_ctr.
   split;  assumption.
 Qed.
 
-Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
+Definition fbracket_unique_target_pointwise (T : Ptd) (τ : AlgStruct T) (b : bracket T τ)
+  {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
-     (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
-     (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
-   → ∀ c, α c = pr1 (fbracket T f) c.
+     (#U f = pre_whisker (U Z) (ptd_pt _ ((T))) ;; α) →
+     (θ (U T ⊗ Z) ;; #H α ;; τ  = pre_whisker (U Z) (τ ) ;; α) 
+   → ∀ c, α c = pr1 (fbracket T _ b f) c.
 Proof.
   intros α H1 H2.
-  set (t:= fbracket_unique _ _ α H1 H2).
+  set (t:= fbracket_unique _ _ b _ α H1 H2).
   apply (nat_trans_eq_weq _ _ hs _ _ _ _ t).
 Qed.
 
 (* Properties of [fbracket] by definition *)
 
-Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-   #U f = pre_whisker (U Z) (ptd_pt _  (pr1 (pr1 T))) ;; fbracket T f.
+Lemma fbracket_η (T : Ptd)(τ : AlgStruct T) (b : bracket _ τ) : ∀ {Z : Ptd} (f : Z ⇒ T),
+   #U f = pre_whisker (U Z) (ptd_pt _  (T)) ;; fbracket T _ b f.
 Proof.
   intros Z f.
-  exact (pr1 (pr2 (pr1 (pr2 T Z f)))).
+  exact (pr1 (pr2 (pr1 (b Z f)))).
 Qed.
 
-Lemma fbracket_τ (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-    θ (U T ⊗ Z) ;; #H (fbracket T f) ;; τ _  
+Lemma fbracket_τ (T : Ptd) (τ : AlgStruct T) (b : bracket _ τ) : ∀ {Z : Ptd} (f : Z ⇒ T),
+    θ (U T ⊗ Z) ;; #H (fbracket T  _ b f) ;; τ 
     = 
-    pre_whisker (U Z) (τ _) ;;  fbracket T f .
+    pre_whisker (U Z) (τ ) ;;  fbracket T _ b f .
 Proof.
   intros Z f.
-  exact (pr2 (pr2 (pr1 (pr2 T Z f)))).
+  exact (pr2 (pr2 (pr1 (b Z f)))).
 Qed.
 
-Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ T) 
-  : post_whisker _ _ _ _ (#U f)(U T) ;; fbracket T g = fbracket T (f ;; g).
+Lemma fbracket_natural (T : Ptd) (τ : AlgStruct T) (b : bracket T τ) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ T) 
+  : post_whisker _ _ _ _ (#U f)(U T) ;; fbracket _ _ b g = fbracket _ _ b (f ;; g).
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
-    set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)) )).
+    set (H':=nat_trans_ax (pr2 T) ).
     rewrite assoc.
     simpl in H'.
     rewrite <- H'.
     rewrite <- assoc.
     apply maponpaths.
-    set (X:= nat_trans_eq_weq _ _ hs _ _ _ _  (fbracket_η T g)).
+    set (X:= nat_trans_eq_weq _ _ hs _ _ _ _  (fbracket_η _ _ b g)).
     simpl in X. exact (X _ ).
   - intro c; simpl.
-    set (H':=nat_trans_ax (τ T)).
+    set (H':=nat_trans_ax (τ )).
     simpl in H'.
     rewrite assoc.
     rewrite <- H'; clear H'.
-    set (H':=fbracket_τ T g).
+    set (H':=fbracket_τ T _ b g).
     simpl in H'.
     Check nat_trans_eq_weq.
     set (X:=nat_trans_eq_pointwise _ _ _ _ _ _ H' c).
@@ -393,7 +377,7 @@ Proof.
     rewrite  <- assoc.
     simpl in *.
     transitivity (  # (pr1 (H ((U T)))) (pr1 (pr1 f) c) ;;
-                     (pr1 (θ (prodcatpair (U T) Z')) c);; pr1 (# H (fbracket T g)) c;; (τ T) c).
+                     (pr1 (θ (prodcatpair (U T) Z')) c);; pr1 (# H (fbracket T _ b g)) c;; pr1 (τ) c).
     Focus 2.
       rewrite <- assoc.
       rewrite <- assoc.
@@ -422,16 +406,14 @@ Proof.
     rewrite assoc.
     apply cancel_postcomposition.
     clear A. clear H'.
-(*    
+
     set (A:=horcomp_id_postwhisker C _ _ hs hs).
     rewrite A.
     apply idpath.
-*)
-  admit.
 Qed.
 
-Lemma compute_fbracket (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-  fbracket T f = post_whisker _ _ _ _ (#U f)(U T) ;; fbracket T (identity _ ). 
+Lemma compute_fbracket (T : Ptd) (τ : AlgStruct T)(b : bracket T τ) : ∀ {Z : Ptd} (f : Z ⇒ T),
+  fbracket T _ b f = post_whisker _ _ _ _ (#U f)(U T) ;; fbracket T _ b (identity _ ). 
 Proof.
   intros Z f.
   assert (A : f = f ;; identity _ ).
@@ -461,22 +443,24 @@ Section mu_from_fbracket.
 Variable T : functor C C.
 Variable η : functor_identity C ⟶ T.
 Variable τ : pr1 (H T) ⟶ T.
-Variable fbracket : bracket T.
+Variable b : bracket (tpair _ T η) τ.
 
-Definition μ_0 : functor_identity C ⟶ pr1 (U T) := η. (*ptd_pt _ (pr1 (pr1 T)).*)
+Definition μ_0 : functor_identity C ⟶ T := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
-Definition μ_0_ptd : id_Ptd ⇒ T.
+Definition Tη : Ptd := tpair _ T η.
+
+Definition μ_0_ptd : id_Ptd ⇒ Tη.
 Proof.
   exists μ_0.
   intro c. simpl. apply id_left.
 Defined.
 
-Definition μ_1 : functor_composite (U id_Ptd) (U T) ⟶ pr1 (U T)
-  := fbracket _ μ_0_ptd.
+Definition μ_1 : functor_composite (U id_Ptd) T ⟶ T
+  := fbracket _ _ b μ_0_ptd.
 
 Lemma μ_1_alt_is_nat_trans:
- is_nat_trans (functor_composite (U id_Ptd) (U T)) 
-     (pr1 (U T)) (λ c : C, identity ((functor_composite (U id_Ptd) (U T)) c)).
+ is_nat_trans (functor_composite (U id_Ptd) (T)) 
+     (pr1 (T)) (λ c : C, identity ((functor_composite (U id_Ptd) (T)) c)).
 Proof.
   unfold is_nat_trans; simpl; intros.
   rewrite id_right.
@@ -484,14 +468,14 @@ Proof.
   apply idpath.
 Qed.
 
-Definition μ_1_alt : functor_composite (U id_Ptd) (U T) ⟶ pr1 (U T).
+Definition μ_1_alt : functor_composite (U id_Ptd) T ⟶ T.
 Proof.
   exists (λ c, identity _ ).
   apply μ_1_alt_is_nat_trans.
 Defined.
   
 
-Lemma equal_to_identity (a b : C) (f : a ⇒ a) (g g' : a ⇒ b) : 
+Lemma equal_to_identity (a a' : C) (f : a ⇒ a) (g g' : a ⇒ a') : 
    f = identity _ → g = g' → f ;; g = g'.
 Proof.
   intros.
@@ -501,13 +485,15 @@ Qed.
 
 Lemma μ_1_identity' : μ_1_alt = μ_1.
 Proof.
-  apply fbracket_unique_pointwise.
+  unfold μ_1.
+  set (H1:=@fbracket_unique_pointwise Tη τ b).
+  apply H1.
   - intros; simpl.
     rewrite id_right.
     apply idpath.
   - intros; simpl.
     rewrite id_right.
-    assert (H':pr1 (θ (prodcatpair (U (pr1 T)) id_Ptd)) c;; pr1 (# H μ_1_alt) c = identity _ ).
+    assert (H':pr1 (θ (prodcatpair ( T) id_Ptd)) c;; pr1 (# H μ_1_alt) c = identity _ ).
     { admit. } (* should be given by hypothesis on θ *) 
     apply equal_to_identity.
     + apply H'.
@@ -523,14 +509,14 @@ Proof.
 Qed.
 
 (* This is the multiplication of the monad to be constructed *)
-Definition μ_2 : functor_composite (U T) (U T) ⟶ pr1 (U T)
-  := fbracket T (identity _ ).
+Definition μ_2 : functor_composite (T) (T) ⟶ T
+  := fbracket _ _ b (identity _ ).
 (*
 Definition μ_3 := fbracket T μ_2.
 *)
 Definition functor_with_mu_from_hss : functor_with_μ C.
 Proof.
-  exists (U T).
+  exists (T).
   exact μ_2.
 Defined.
 
@@ -541,12 +527,12 @@ Proof.
 Defined.
 
 Lemma Monad_law_1_from_hss :
-  ∀ c : C, μ_0 (pr1 (U T) c);; μ_2 c = identity ((pr1 (U T)) c).
+  ∀ c : C, μ_0 (T c);; μ_2 c = identity (T c).
 Proof.
   intro c. 
   unfold μ_2. simpl.
   unfold μ_0. simpl.
-  set (H':=fbracket_η T (identity _) ).
+  set (H':=fbracket_η _ _ b (identity _) ).
   set (H2:= nat_trans_eq_weq _ _ hs _ _ _ _ H').
   simpl in H2.
   apply pathsinv0.
@@ -554,8 +540,8 @@ Proof.
 Qed.
 
 Lemma ηη_nat_trans :
-  is_nat_trans (functor_identity C) (functor_composite (U T) (U T))
-     (λ c : C, η c;; η ((pr1 (U T)) c)).
+  is_nat_trans (functor_identity C) (functor_composite (T) (T))
+     (λ c : C, η c;; η (( (T)) c)).
 Proof.
   simpl.
   unfold is_nat_trans.
@@ -563,10 +549,10 @@ Proof.
   intros c c' f.
   set (η_nat := nat_trans_ax η).
   repeat rewrite <- assoc.
-  set (H1 := η_nat _ _ (# (pr1 (U T)) f)); clearbody H1.
+  set (H1 := η_nat _ _ (# (pr1 (T)) f)); clearbody H1.
   simpl in H1.
   
-  transitivity (η c ;;  # (pr1 (U T)) f;; η ((pr1 (U T)) c')).
+  transitivity (η c ;;  # (pr1 (T)) f;; η ((pr1 (T)) c')).
   
   Focus 2.
   repeat rewrite <- assoc.
@@ -582,15 +568,15 @@ Qed.
 
 Definition T_squared : Ptd.
 Proof.
-  exists (functor_composite (U T) (U T)).
-  exists (λ c, η c ;; η (pr1 (U T) c)).
+  exists (functor_composite (T) (T)).
+  exists (λ c, η c ;; η (pr1 (T) c)).
 (*  exists (λ c, ptd_pt _ (pr1 (pr1 T)) c ;; ptd_pt _ (pr1 (pr1 T)) (pr1 (U T) c)). *)
   apply ηη_nat_trans.
 Defined.
 
 
 Lemma μ_2_is_ptd_mor :
-  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = (ptd_pt C (pr1 (pr1 T))) c.
+  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = η c.
 Proof.
   intro c.
   unfold μ_2.
@@ -604,15 +590,18 @@ Proof.
   - apply id_right.
 Qed.
 
-Definition μ_2_ptd : T_squared ⇒ T.
+Definition μ_2_ptd : T_squared ⇒ Tη.
 Proof.
   exists μ_2.
   apply μ_2_is_ptd_mor.
 Defined.
 
-Definition μ_3 : U T_squared ∙ U T ⇒ U T := fbracket T μ_2_ptd.
+Definition μ_3 :  (functor_compose hs hs T (U T_squared)) ⇒ T := fbracket _ _ b μ_2_ptd.
+Check μ_3.
 
-Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
+About post_whisker.
+
+Lemma μ_3_T_μ_2_μ_2 : μ_3 = post_whisker hs hs _ _ μ_2 T ;; μ_2.
 Proof.
 (*  Print functor_compose.
   Check (U T ∘ μ_2 ;; μ_2).
@@ -627,7 +616,7 @@ Proof.
   simpl in *
 *)
   apply pathsinv0.
-  set (H1 := @fbracket_unique T _ μ_2_ptd).
+  set (H1 := @fbracket_unique _ _ b _ μ_2_ptd).
   apply H1; clear H1.
   - apply nat_trans_eq; try assumption.
     intro c; simpl.
@@ -643,22 +632,22 @@ Proof.
   - rewrite functor_comp.
     apply nat_trans_eq; try assumption.
     intro c; simpl.
-    set (H1 := θ_nat_2 (U T) _ _ μ_2_ptd); clearbody H1.
+    set (H1 := θ_nat_2 (T) _ _ μ_2_ptd); clearbody H1.
     set (H3:=horcomp_id_postwhisker ).
-    set (H4 := H3 _ _ _ hs hs _ _ μ_2 ((U T))).
+    set (H4 := H3 _ _ _ hs hs _ _ μ_2 ((T))).
     simpl in H1.
 
-    transitivity (pr1 (θ ((U T) ⊗ T_squared)) c;; 
-                  pr1 (# H (nat_trans_id (pr1 (U T)) ∙∙ μ_2)) c;; 
+    transitivity (pr1 (θ ((T) ⊗ T_squared)) c;; 
+                  pr1 (# H (nat_trans_id (pr1 (T)) ∙∙ μ_2)) c;; 
                   pr1 (# H μ_2) c;; 
-                  (τ T) c).
+                  (τ) c).
     repeat rewrite <- assoc.
     apply maponpaths.
     repeat rewrite assoc.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
     
-    assert (H5:  nat_trans_id (pr1 (U T)) ∙∙ μ_2 = U T ∘ μ_2).
+    assert (H5:  nat_trans_id (pr1 (T)) ∙∙ μ_2 = post_whisker hs hs _ _  μ_2 T).
     { apply H4. }
     rewrite H5.
     apply idpath.
@@ -674,10 +663,10 @@ Proof.
     simpl in H2.
     rewrite id_left in H2.
     transitivity 
-               (# (pr1 (H (U T))) (μ_2 c);; 
-                pr1 (θ ((U T) ⊗ T)) c ;;
+               (# (pr1 (H (T))) (μ_2 c);; 
+                pr1 (θ ((T) ⊗ Tη)) c ;;
                  pr1 (# H μ_2) c;; 
-                 (τ T) c ).
+                 (τ ) c ).
     repeat rewrite assoc.
     apply cancel_postcomposition.
     apply cancel_postcomposition.
@@ -686,39 +675,39 @@ Proof.
     clear H2. clear H1.
 
 
-    set (H1 := @fbracket_τ T _ (identity _ )); clearbody H1.
+    set (H1 := @fbracket_τ _ _ b _ (identity _ )); clearbody H1.
     set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1 c); clearbody H2.
     simpl in H2.
     unfold μ_2.
     rewrite <- assoc in H2.
     repeat rewrite <- assoc.
     
-    transitivity ( # (pr1 (H (U T))) (pr1(fbracket T (identity T)) c);;
-            pr1 (τ T) ((pr1 (U T)) c);; pr1 (fbracket T (identity T)) c).
+    transitivity ( # (pr1 (H (T))) (pr1 (fbracket _ _ b (identity Tη)) c);;
+            pr1 (τ ) ((pr1 (T)) c);; pr1 (fbracket _ _ b  (identity Tη)) c).
     + repeat rewrite <- assoc.
       apply maponpaths.
       apply H2.
     + clear H2 H1.
       repeat rewrite assoc.
       apply cancel_postcomposition.
-      set (H1 := nat_trans_ax (τ T)).
+      set (H1 := nat_trans_ax (τ )).
       apply H1.
 Qed.
    
    
     
-Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
+Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø T ;; μ_2.
 Proof.
   Check μ_3.
-  Check (pre_whisker (U T) μ_2 ;; μ_2).
+  Check (pre_whisker (T) μ_2 ;; μ_2).
   apply pathsinv0.  
   unfold μ_3.
-  set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
+  set (H1 := @fbracket_unique (*_pointwise*) _ _ b _ μ_2_ptd).
   apply H1; clear H1.
   - simpl.
     apply nat_trans_eq; try assumption; intro c.
     simpl.
-    set (H1:=Monad_law_1_from_hss (pr1 (U T) c)).
+    set (H1:=Monad_law_1_from_hss (pr1 (T) c)).
     simpl in H1.
     rewrite assoc.
     unfold μ_0 in H1.
@@ -726,8 +715,50 @@ Proof.
     + rewrite id_left; apply idpath.
     + apply cancel_postcomposition.
       apply (!H1).
-  - 
-    set (A:=θ (U T ⊗ T_squared)).
+  - simpl.
+    set (AA:= functor_comp H _ _ _ (pre_whisker(hsB:=hs)  T μ_2 ) μ_2).
+    clearbody AA.
+    simpl in *.
+    
+    match goal with | [|- _ ;; # ?H (?f) ;; _ = _ ] => set (BB:= f) end.
+    generalize dependent AA.
+    match goal with | [|- # ?H (?g) = _ ->  _  ] => set (CC:= g) end.
+    intro.
+    assert (BB = CC).
+    unfold BB.
+    unfold CC.
+    apply idpath.
+    rewrite X.
+    
+    generalize dependent AA.
+    
+    match goal with | [|-_ = ?g -> _ ] => set (DD:= g) end.
+    (*
+    match goal with | [|- ?g = _ -> _ ] => set (ADA := g) end.
+    *)
+    intro  AA.
+    
+    unfold compose.
+    simpl.  
+    simpl in AA.
+    unfold ob in AA.
+    simpl in *.
+    rewrite <- X in AA.
+    subst.
+    rewrite AA.
+    rewrite 
+    
+    g
+    rewrite AA.
+    
+    transitivity (θ (T ⊗ T_squared);; # H (μ_2 ø T) ;; # H μ_2 ;; τ ).
+    
+    simpl in *.
+    unfold CC in *.
+    rewrite AA.
+    a
+    
+    set (A:=θ (T ⊗ T_squared)).
     set (H':= functor_comp H).
     set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
     set (B:= τ T).
