@@ -176,8 +176,8 @@ Proof.
 Defined.
 
 Lemma θ_nat_1 (X X' : EndC) (α : X ⇒ X') (Z : Ptd) 
-  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (U Z)) (θ (X' ⊗ Z)) =
-        θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (U Z)).
+  : compose(C:=EndC) (# H α ∙∙ nat_trans_id (pr1 (U Z))) (θ (X' ⊗ Z)) =
+        θ (X ⊗ Z);; # H (α ∙∙ nat_trans_id (pr1 (U Z))).
 Proof.
   set (t:=nat_trans_ax θ).
   set (t':=t (X ⊗ Z) (X' ⊗ Z)).
@@ -196,9 +196,15 @@ Proof.
   simpl in t'.
   set (H':= functor_id (H X') (pr1 Z c)).
   simpl in *.
-  rewrite H' in t'. clear H'.
-  rewrite id_right in t'.
-  exact t'.
+  transitivity ( pr1 (# H α) ((pr1 Z) c);; # (pr1 (H X')) (identity ((pr1 (pr1 Z)) c));;
+       pr1 (θ (X' ⊗ Z)) c ).
+  - rewrite <- assoc.
+    apply maponpaths.
+    match goal with | [|- ?f = _ ] => transitivity (identity _ ;; f) end.
+    + apply pathsinv0, id_left.
+    + apply cancel_postcomposition.
+      apply (!H').
+  - apply t'.
 Qed.
 
 Lemma θ_nat_2 (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z')
@@ -261,13 +267,13 @@ Hypothesis θ1 : ∀ (X : EndC) (c : C),
 
 
 
-Definition AlgStruct (T : Ptd) : UU := H(U T) ⟶ U T.
+Definition AlgStruct (T : Ptd) : UU := pr1 (H(U T)) ⟶ pr1 (U T).
 
 Definition Alg : UU := Σ T : Ptd, AlgStruct T.
 
 Coercion PtdFromAlg (T : Alg) : Ptd := pr1 T.
 
-Definition τ (T : Alg) : H (U T) ⟶ U T := pr2 T.
+Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 
 
 
@@ -309,7 +315,7 @@ Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T)
 
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ (α : functor_composite (U Z)(U T) ⟶ U T),
+  : ∀ (α : functor_composite (U Z)(U T) ⟶ pr1 (U T)),
      (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 (pr1 T)) (pr1 (U Z) c) ;; α c) →
      (∀ c : C, pr1 (θ (U T ⊗ Z))  c ;; pr1 (#H α) c ;; τ _ c = 
         τ _ (pr1 (U Z) c) ;; α c) → α = fbracket T f.
@@ -320,7 +326,7 @@ Proof.
 Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
+  : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
      (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
      (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
    → α = fbracket T f.
@@ -331,7 +337,7 @@ Proof.
 Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
-  : ∀ α : functor_composite (U Z)(U T) ⟶ U T,
+  : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
      (#U f = pre_whisker (U Z) (ptd_pt _ ((pr1 (pr1 T)))) ;; α) →
      (θ (U T ⊗ Z) ;; #H α ;; τ _ = pre_whisker (U Z) (τ _) ;; α) 
    → ∀ c, α c = pr1 (fbracket T f) c.
@@ -379,6 +385,7 @@ Proof.
     rewrite <- H'; clear H'.
     set (H':=fbracket_τ T g).
     simpl in H'.
+    Check nat_trans_eq_weq.
     set (X:= nat_trans_eq_weq _ _ hs _ _ _ _ H' c).
     simpl in X.
     rewrite  <- assoc.
