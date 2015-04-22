@@ -721,9 +721,21 @@ Proof.
     simpl in *.
     
     match goal with | [|- _ ;; # ?H (?f) ;; _ = _ ] => set (BB:= f) end.
+    unfold functor_compose in BB.
     generalize dependent AA.
     match goal with | [|- # ?H (?g) = _ ->  _  ] => set (CC:= g) end.
-    intro.
+    unfold functor_compose in CC.
+    assert (HH : BB = CC).
+      apply idpath.    
+      rewrite HH.
+      unfold compose.
+      simpl.
+      intro D.
+      rewrite D.
+    transitivity (θ (T ⊗ T_squared);; # H BB;; τ).
+      subst.
+      induction D.
+      intro.
     assert (BB = CC).
     unfold BB.
     unfold CC.
@@ -743,6 +755,17 @@ Proof.
     simpl in AA.
     unfold ob in AA.
     simpl in *.
+    
+    generalize AA.
+    
+    match goal with | [|-?g = _ -> _ ] => set (TT:= g) end.
+    
+    intro HT.
+    
+    match goal with | [|- _ ( _ _ ?g) _ = _ ] => set (TTT := g) end.
+    
+    assert (TTT = TT).
+    
     rewrite <- X in AA.
     subst.
     rewrite AA.
