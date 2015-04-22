@@ -95,12 +95,10 @@ Proof.
       clear aax eta. clear bax eta'. clear eta''.
       set (HHH:=nat_trans_ax (#H β)).
       rewrite <- functor_comp.
-      rewrite HHH.
       rewrite assoc.
+      rewrite <- functor_comp.
       rewrite HHH.
-      rewrite <- assoc.
-      apply maponpaths.
-      apply functor_comp.
+      apply idpath.
 Qed.
 
 Definition θ_source : functor _ _ := tpair _ _ is_functor_θ_source.
@@ -151,10 +149,11 @@ Proof.
       destruct FX' as [F' X'];
       destruct FX'' as [F'' X'']; simpl in *.
       repeat rewrite <- assoc. apply maponpaths.
-      rewrite <- (nat_trans_ax β).
-      rewrite functor_comp.
-      repeat rewrite <- assoc; apply maponpaths.
-      apply nat_trans_ax.
+      rewrite <- (nat_trans_ax β ((pr1 X') c)).
+      rewrite assoc.
+      rewrite <- functor_comp.
+      rewrite nat_trans_ax.
+      apply idpath.
 Qed.      
 
 Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
