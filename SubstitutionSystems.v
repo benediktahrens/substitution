@@ -9,7 +9,7 @@ Require Import RezkCompletion.whiskering.
 Require Import RezkCompletion.Monads.
 Require Import SubstSystems.Auxiliary.
 Require Import SubstSystems.PointedFunctors.
-Require Import SubstSystems.ProductPrecategory.
+(* Require Import SubstSystems.ProductPrecategory. *)
 Require Import SubstSystems.HorizontalComposition.
 
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
@@ -29,7 +29,17 @@ Section def_hss.
 Variable C : precategory.
 Variable hs : has_homsets C.
 
-Variable H : functor [C, C, hs] [C, C, hs].
+(* Variable H : functor [C, C, hs] [C, C, hs]. *)
+Variable H : functor_data C C → functor_data C C.
+Variable Hp : ∀ F : functor_data C C, is_functor F → is_functor (H F).
+Variable H₁ : ∀ {F G : functor_data C C} (α : F ⟶ G), 
+                H F ⟶ H G.
+Arguments H₁ {_ _} _ .
+
+Variable Hcomp : ∀ (F G X : functor_data C C) (α : F ⟶ G) (β : G ⟶ X),
+    H₁  (nat_trans_comp α β) = nat_trans_comp (H₁ α) (H₁ β).
+
+
 
 (* formalize [θ] not as a natural transformation, but simply by
    writing down all the axioms 
@@ -38,9 +48,14 @@ Variable H : functor [C, C, hs] [C, C, hs].
 Local Notation "'U'" := (functor_ptd_forget C hs).
 Local Notation "'Ptd'" := (precategory_Ptd C hs).
 Local Notation "'EndC'":= ([C, C, hs]) .
-Local Notation "A 'XX' B" := (product_precategory A B) (at level 2).
+(* Local Notation "A 'XX' B" := (product_precategory A B) (at level 2). *)
 
 (* Definition U₀ (F : precategory_Ptd C hs) : functor C C := functor_ptd_forget C hs F. *)
+
+
+Variable θ : ∀ (F : functor C C) (X : Ptd),
+      H F ∙ U X ⟶ H (F ∙ U X).
+
 
 Definition θ_source_ob (F : [C, C, hs]) (X : Ptd) : [C, C, hs] := H F ∙ U X.
 
@@ -731,6 +746,30 @@ Proof.
       unfold compose.
       simpl.
       intro D.
+      
+      match goal with |[ |-_ = ?g ] => set (EE:= g) end.
+      
+      Set Printing Implicit.
+      Unset Printing Notations.
+      unfold functor_compose in D.
+      simpl in *.
+      idtac.
+      Set Printing All.
+      idtac.
+      
+      assert ( AAA:=       (@functor_on_morphisms (functor_precategory_ob_mor C C)
+           (functor_precategory_ob_mor C C)
+           (functor_data_from_functor (functor_precategory C C hs)
+              (functor_precategory C C hs) H)
+           (@functor_composite C C C T (@functor_composite C C C T T)) T CC) 
+            =
+            (@functor_on_morphisms (functor_precategory_ob_mor C C)
+              (functor_precategory_ob_mor C C)
+              (functor_data_from_functor (functor_precategory C C hs)
+                 (functor_precategory C C hs) H)
+              (@functor_composite C C C (@functor_composite C C C T T) T) T
+              CC)).
+
       rewrite D.
     transitivity (θ (T ⊗ T_squared);; # H BB;; τ).
       subst.
