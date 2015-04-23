@@ -600,10 +600,21 @@ Check μ_3'.
 
 Check (μ_3' = μ_3).
 
+(*
 Goal functor_composite (U T_squared) (U T) = functor_composite (U T)(U T_squared).
 Proof.
   simpl.
-  
+*)
+
+Goal pr1 (functor_composite (U T_squared) (U T)) = pr1 (functor_composite (U T)(U T_squared)).
+ apply idpath.
+Qed.
+
+Goal nat_trans (functor_composite (U T_squared) (U T)) (U T) 
+     = 
+     nat_trans (functor_composite (U T)(U T_squared)) (U T).
+apply idpath.
+Qed.
 
 Lemma μ_3_T_μ_2_μ_2 : μ_3 = (U T) ∘ μ_2 ;; μ_2.
 Proof.
@@ -692,9 +703,7 @@ Proof.
       set (H1 := nat_trans_ax (τ T)).
       apply H1.
 Qed.
-   (*
-Lemma bla :    
-    *)
+   
 Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
 Proof.
   Check μ_3.
@@ -720,7 +729,23 @@ Proof.
     set (H':= functor_comp H).
     set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
     set (B:= τ T).
+    match goal with | [|- _ = ?q] => set (Q:=q) end.
+    match goal with | [|- _ ;; # ?H (?f ;; ?g) ;; _ = _ ] => set (F:=f); set (G:=g) end.
+    set (H3:= functor_comp H _ _ _ F G).
+    (* rewrite H3. *) (* doesn't work *)
     
+    set (H3':= functor_comp H
+          (functor_composite (functor_composite (U T) (U T)) (U T))
+          (functor_compose hs hs (U T) (U T)) (U T) F G).
+    
+    (* assert (H3 = H3'). *) (* do not have the same type *)
+    
+
+    
+    match goal with | [|- _ ;; ?k ;; _ = _ ] => set (K:=k) end.
+    
+    (* assert (K  = #H F ;; #H G). *) (* not well-typed *)
+
     generalize dependent H2.
     
 (*
