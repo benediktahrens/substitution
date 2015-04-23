@@ -367,7 +367,8 @@ Lemma fbracket_natural (T : hss) {Z Z' : Ptd} (f : Z ⇒ Z') (g : Z' ⇒ T)
 Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
-    set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)) )).
+    set (eta := ptd_pt _ (pr1 (pr1 T))).
+    set (H':=nat_trans_ax eta).
     rewrite assoc.
     simpl in H'.
     rewrite <- H'.
