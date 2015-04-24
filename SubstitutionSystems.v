@@ -715,10 +715,10 @@ Lemma μ_3_μ_2_T_μ_2 :  (
                  (@functor_composite C C C ((functor_ptd_forget C hs) T)
                     ((functor_ptd_forget C hs) T))
                  ((functor_ptd_forget C hs) T)
-          (μ_2 ø U T :@functor_compose C C C hs hs 
+          (μ_2 ø U T (*:@functor_compose C C C hs hs 
                     (@functor_composite C C C ((functor_ptd_forget C hs) T)
                                               ((functor_ptd_forget C hs) T))
-                    ((functor_ptd_forget C hs) T) ⇒ _ ) ( μ_2) : 
+                    ((functor_ptd_forget C hs) T) ⇒ _*) ) ( μ_2) : 
            functor_compose hs hs (functor_composite (U T) (U T)) (U T) ⇒ U T) = μ_3.
   unfold μ_3.
   set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
@@ -737,8 +737,6 @@ Lemma μ_3_μ_2_T_μ_2 :  (
   - 
     
     set (A:=θ (U T ⊗ T_squared)).
-    set (H':= functor_comp H).
-    set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
     set (B:= τ T).
     match goal with | [|- _ = ?q] => set (Q:=q) end.
     match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => 
@@ -746,7 +744,6 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     
     set (H3:= functor_comp H _ _ _ F μ_2).
     unfold functor_compose in H3.
-    clear H2.
     match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
       apply idpath.
       rewrite H3.
@@ -807,6 +804,52 @@ Lemma μ_3_μ_2_T_μ_2 :  (
     rewrite H3.
  *)
 Qed.
+
+Lemma μ_3_μ_2_T_μ_2_test :  (
+    @compose (functor_precategory C C hs)
+                 (*@functor_composite C C C 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T)*) _ 
+                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    ((functor_ptd_forget C hs) T))
+                 ((functor_ptd_forget C hs) T)
+          (μ_2 ø U T (*:@functor_compose C C C hs hs 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T) ⇒ _*) ) ( μ_2) : 
+           functor_compose hs hs (functor_composite (U T) (U T)) (U T) ⇒ U T) = μ_3.
+  unfold μ_3.
+  set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
+  apply H1; clear H1.
+  - simpl.
+    apply nat_trans_eq; try assumption; intro c.
+    simpl.
+    set (H1:=Monad_law_1_from_hss (pr1 (U T) c)).
+    simpl in H1.
+    rewrite assoc.
+    unfold μ_0 in H1.
+    transitivity (identity _ ;; μ_2 c).
+    + rewrite id_left; apply idpath.
+    + apply cancel_postcomposition.
+      apply (!H1).
+  - 
+    
+    set (A:=θ (U T ⊗ T_squared)).
+    set (B:= τ T).
+    match goal with | [|- _ = ?q] => set (Q:=q) end.
+    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => 
+         set (F:=f : functor_compose hs hs (functor_composite (U T) (U T)) _ ⇒ _ ) end.
+    
+    set (H3:= functor_comp H _ _ _ F μ_2).
+    unfold functor_compose in H3.
+    match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
+      apply idpath.
+      rewrite H3.
+    admit.
+
+
+
 (*
 Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
 Proof.
