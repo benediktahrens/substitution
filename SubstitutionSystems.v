@@ -704,8 +704,113 @@ Proof.
       apply H1.
 Qed.
    
+
+
+Lemma μ_3_μ_2_T_μ_2 :  (
+    @compose (functor_precategory C C hs)
+                 (@functor_composite C C C 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T))
+                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    ((functor_ptd_forget C hs) T))
+                 ((functor_ptd_forget C hs) T)
+          (μ_2 ø U T :@functor_compose C C C hs hs 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                                              ((functor_ptd_forget C hs) T))
+                    ((functor_ptd_forget C hs) T) ⇒ _ ) ( μ_2) : 
+           functor_compose hs hs (functor_composite (U T) (U T)) (U T) ⇒ U T) = μ_3.
+  unfold μ_3.
+  set (H1 := @fbracket_unique (*_pointwise*) T _ μ_2_ptd).
+  apply H1; clear H1.
+  - simpl.
+    apply nat_trans_eq; try assumption; intro c.
+    simpl.
+    set (H1:=Monad_law_1_from_hss (pr1 (U T) c)).
+    simpl in H1.
+    rewrite assoc.
+    unfold μ_0 in H1.
+    transitivity (identity _ ;; μ_2 c).
+    + rewrite id_left; apply idpath.
+    + apply cancel_postcomposition.
+      apply (!H1).
+  - 
+    
+    set (A:=θ (U T ⊗ T_squared)).
+    set (H':= functor_comp H).
+    set (H2:= H' _ _ _ (μ_2 ø U T) μ_2); clearbody H2; clear H'.
+    set (B:= τ T).
+    match goal with | [|- _ = ?q] => set (Q:=q) end.
+    match goal with | [|- _ ;; # ?H (?f ;; _ ) ;; _ = _ ] => 
+         set (F:=f : functor_compose hs hs (functor_composite (U T) (U T)) _ ⇒ _ ) end.
+    
+    set (H3:= functor_comp H _ _ _ F μ_2).
+    unfold functor_compose in H3.
+    clear H2.
+    match goal with | [ H : ?f = _ |- _ ] => transitivity (A ;; f ;; B) end.
+      apply idpath.
+      rewrite H3.
+    admit.
+(*
+    Print functor_comp.
+    Unset Printing Notations.
+    Set Printing Implicit.
+    idtac.
+    rewrite H3.
+    unfold functor_compose in *.
+    unfold θ_target in A.
+    simpl in A.
+    unfold θ_target_ob in A; simpl in A.
+    
+    (* rewrite H3. *) (* doesn't work *)
+    
+    set (H3':= functor_comp H
+          (functor_composite (functor_composite (U T) (U T)) (U T))
+          (functor_compose hs hs (U T) (U T)) (U T) F G).
+    set (F':= (F : functor_compose hs hs (functor_composite (U T) (U T)) (U T) 
+                   ⇒ functor_compose hs hs (U T) (U T))).
+     set (H4:= functor_comp H _ _ _ F' G).
+      set (H4':= functor_comp H
+          (functor_composite (functor_composite (U T) (U T)) (U T))
+          (functor_compose hs hs (U T) (U T)) (U T) F' G).
+   
+    Set Printing Implicit.
+    Unset Printing Notations.
+    idtac.
+    unfold functor_compose in H4.
+    rewrite H4.
+    idtac.
+    assert (happyness : (@compose (functor_precategory C C hs)
+                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                       ((functor_ptd_forget C hs) T)))
+                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    ((functor_ptd_forget C hs) T))
+                 ((functor_ptd_forget C hs) T) F' G) 
+               =
+               (@compose (functor_precategory C C hs)
+                 (@functor_composite C C C 
+                    (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                       ((functor_ptd_forget C hs) T))((functor_ptd_forget C hs) T))
+                 (@functor_composite C C C ((functor_ptd_forget C hs) T)
+                    ((functor_ptd_forget C hs) T))
+                 ((functor_ptd_forget C hs) T) F' G)
+       ).
+        admit.
+      rewrite happyness.
+      rewrite H4'.
+      apply cancel_postcomposition.
+    
+    rewrite H4.
+    idtac.
+    
+    rewrite H3.
+ *)
+Qed.
+(*
 Lemma μ_3_μ_2_T_μ_2 :  μ_3  = μ_2 ø U T ;; μ_2.
 Proof.
+  match goal with |[|- _ = ?f] => set (R:=f) end.
   Check μ_3.
   Print functor_composite.
   Check (pre_whisker (U T) μ_2 ;; μ_2).
@@ -732,6 +837,11 @@ Proof.
     match goal with | [|- _ = ?q] => set (Q:=q) end.
     match goal with | [|- _ ;; # ?H (?f ;; ?g) ;; _ = _ ] => set (F:=f); set (G:=g) end.
     set (H3:= functor_comp H _ _ _ F G).
+    unfold functor_compose in *.
+    unfold θ_target in A.
+    simpl in A.
+    unfold θ_target_ob in A; simpl in A.
+    
     (* rewrite H3. *) (* doesn't work *)
     
     set (H3':= functor_comp H
@@ -880,6 +990,7 @@ Proof.
 *)
 admit.
 Qed.
+*)
 Check μ_3_μ_2_T_μ_2.
 (* Here we prove Thm 10 of the original paper 
    economically by using magic "admit" tactic. *)
@@ -976,9 +1087,10 @@ Proof.
       apply pathsinv0, H2.
     + set (H1 :=  μ_3_μ_2_T_μ_2).
       set (H2 := nat_trans_eq_weq _ _ hs _ _ _ _ H1).
+      apply pathsinv0. 
       apply H2.
 Qed.
-
+Print Assumptions Monad_laws_from_hss.
 Definition Monad_from_hss : Monad C.
 Proof.
   exists Monad_data_from_hss.
