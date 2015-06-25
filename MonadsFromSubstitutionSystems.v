@@ -72,14 +72,14 @@ Section mu_from_fbracket.
 
 Variable T : hss H.
 
-Local Notation "'η'" := (ptd_pt _ (pr1 (pr1 T))).
+Local Notation "'η'" := (ptd_pt _ _ (pr1 (pr1 T))).
 
 Definition μ_0 : functor_identity C ⟶ pr1 (U T) := η. (*ptd_pt _ (pr1 (pr1 T)).*)
 
 Definition μ_0_ptd : id_Ptd C hs ⇒ T.
 Proof.
   exists μ_0.
-  intro c. simpl. apply id_left.
+  apply id_left.
 Defined.
 
 Definition μ_1 : functor_composite (U (id_Ptd C hs)) (U T) ⟶ pr1 (U T) 
@@ -186,7 +186,7 @@ Proof.
         apply nat_trans_eq; simpl.
          apply hs.
          intro c.
-         set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)))).
+         set (H':=nat_trans_ax (ptd_pt _ _ (pr1 (pr1 T)))).
          simpl in H'.
          rewrite assoc.
          rewrite <- H'; clear H'.
@@ -250,21 +250,21 @@ Qed.
 
 Definition T_squared : Ptd.
 Proof.
-  exact (ptd_composite _ (pr1 (pr1 T)) (pr1 (pr1 T))).
+  exact (ptd_composite _ _ (pr1 (pr1 T)) (pr1 (pr1 T))).
 Defined.
 
 (** [μ_2] is not just a natural transformation from [T∙T] to [T], but also compatible with 
     the pointed structure given by [η] *)
 
 Lemma μ_2_is_ptd_mor :
-  ∀ c : C, (ptd_pt C T_squared) c;; μ_2 c = (ptd_pt C (pr1 (pr1 T))) c.
+  ∀ c : C, pr1 (ptd_pt C _ T_squared) c;; μ_2 c = pr1 (ptd_pt C _ (pr1 (pr1 T))) c.
 Proof.
   intro c.
   unfold μ_2.
   unfold T_squared. simpl.
   set (H':=Monad_law_2_from_hss c).
   simpl in H'.
-  pathvia (η c ;; identity _ ).
+  pathvia (pr1 η c ;; identity _ ).
   - repeat rewrite <- assoc.
     apply maponpaths.
     apply H'.
@@ -274,6 +274,7 @@ Qed.
 Definition μ_2_ptd : T_squared ⇒ T.
 Proof.
   exists μ_2.
+  apply nat_trans_eq; try assumption.
   apply μ_2_is_ptd_mor.
 Defined.
 

@@ -11,6 +11,7 @@ Require Import UnicodeNotations.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "F ⟶ G" := (nat_trans F G) (at level 39).
 Local Notation "G □ F" := (functor_composite _ _ _ F G) (at level 35).
+Local Notation "C ⟦ a , b ⟧" := (precategory_morphisms (C:=C) a b) (at level 50).
 
 Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
@@ -19,28 +20,30 @@ Section def_ptd.
 Variable C : precategory.
 Hypothesis hs : has_homsets C.
 
-Definition ptd_obj : UU := Σ F : functor C C, functor_identity C ⟶ F.
+Local Notation "'EndC'" := ([C,C,hs]).
+Local Notation "'Id'" := (functor_identity C : EndC).
 
-Coercion functor_from_ptd_obj (F : ptd_obj) : functor C C := pr1 F.
+Definition ptd_obj : UU := Σ F : EndC, Id ⇒ F.
 
-Definition ptd_pt (F : ptd_obj) : functor_identity C ⟶ F := pr2 F.
+Coercion functor_from_ptd_obj (F : ptd_obj) : EndC := pr1 F.
+
+Definition ptd_pt (F : ptd_obj) : Id ⇒ F := pr2 F.
 
 Definition ptd_mor (F G : ptd_obj) : UU := 
-  Σ α : F ⟶ G, (∀ c : C, ptd_pt F c ;; α c = ptd_pt G c).
+  Σ α : F ⇒  G, ptd_pt F ;; α = ptd_pt G.
 
-Coercion nat_trans_from_ptd_mor {F G : ptd_obj} (a : ptd_mor F G) : nat_trans F G := pr1 a.
+Coercion nat_trans_from_ptd_mor {F G : ptd_obj} (a : ptd_mor F G) : F ⇒ G := pr1 a.
 
 Lemma eq_ptd_mor {F G : ptd_obj} (a b : ptd_mor F G) 
-  : a = b ≃ (a : F ⟶ G) = b.
+  : a = b ≃ (a : EndC ⟦F , G⟧) = b.
 Proof.
   apply total2_paths_isaprop_equiv.
   intro x.
-  apply impred; intros ?.
-  apply hs.
+  apply isaset_nat_trans. assumption.
 Defined.
 
 Definition ptd_mor_commutes {F G : ptd_obj} (α : ptd_mor F G) 
-  : ∀ c : C, ptd_pt F c ;; α c = ptd_pt G c.
+  : ptd_pt F ;; α = ptd_pt G.
 Proof.
   exact (pr2 α).
 Qed.
@@ -48,19 +51,16 @@ Qed.
 Definition ptd_id (F : ptd_obj) : ptd_mor F F.
 Proof.
   exists (nat_trans_id _ ).
-  intro c. simpl.
-  apply id_right.
+  apply (id_right (functor_precategory _ _ hs)).
 Defined.
 
 Definition ptd_comp {F F' F'' : ptd_obj} (α : ptd_mor F F') (α' : ptd_mor F' F'')
   : ptd_mor F F''.
 Proof.
-  exists (nat_trans_comp _ _ _ α α').
-  intro c. simpl.
+  exists (α ;;  α').
   rewrite assoc.
-  set (H:=ptd_mor_commutes α c); simpl in H; rewrite H; clear H.
-  set (H:=ptd_mor_commutes α' c); simpl in H; rewrite H; clear H.
-  apply idpath.
+  rewrite ptd_mor_commutes.
+  apply ptd_mor_commutes.
 Defined.  
 
 Definition ptd_ob_mor : precategory_ob_mor.

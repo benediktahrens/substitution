@@ -16,12 +16,13 @@ Ltac pathvia b := (apply (@pathscomp0 _ _ b _ )).
 
 Section def_ptd.
 
-Variable C : precategory.
+  Variable C : precategory.
+  Variable hs : has_homsets C.
 
-Definition ptd_composite (Z Z' : ptd_obj C) : ptd_obj C.
+Definition ptd_composite (Z Z' : ptd_obj C hs) : ptd_obj C hs.
 Proof.
-  exists (functor_composite _ _ _ Z Z').
-  apply (hor_comp (ptd_pt _ Z) (ptd_pt _ Z')).
+  exists (functor_composite _ _ _ (pr1 Z) (pr1 Z') : [C,C,hs] ).
+  apply (hor_comp (ptd_pt _ _ Z) (ptd_pt _ _ Z')).
 Defined.
 
 End def_ptd.

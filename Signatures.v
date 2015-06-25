@@ -177,11 +177,12 @@ Proof.
       destruct FX' as [F' X'];
       destruct FX'' as [F'' X'']; simpl in *.
       repeat rewrite <- assoc. apply maponpaths.
-      rewrite <- (nat_trans_ax β ((pr1 X') c)).
+      rewrite <- (nat_trans_ax β (*((pr1 X') c)*)).
       rewrite assoc.
-      rewrite <- functor_comp.
-      rewrite nat_trans_ax.
-      apply idpath.
+      rewrite functor_comp.
+      repeat rewrite <- assoc.
+      apply maponpaths.
+      apply nat_trans_ax.
 Qed.      
 
 Definition θ_target : functor _ _ := tpair _ _ is_functor_θ_target_functor_data.
@@ -241,7 +242,7 @@ Hypothesis θ_strength1 : θ_Strength1.
 
 Definition θ_Strength2 : UU := ∀ (X : EndC) (Z Z' : Ptd) (Y : EndC)
            (α : functor_compose hs hs (functor_composite (U Z) (U Z')) X ⇒ Y),
-    θ (X ⊗ (ptd_composite _ Z Z')) ;; # H α =
+    θ (X ⊗ (ptd_composite _ hs Z Z')) ;; # H α =
     θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) ;; 
        # H (α : functor_compose hs hs (U Z) (functor_composite (U Z') X) ⇒ Y).
 
@@ -249,7 +250,7 @@ Section Strength_law_2_intensional.
 
 Definition θ_Strength2_int : UU 
   := ∀ (X : EndC) (Z Z' : Ptd), 
-      θ (X ⊗ (ptd_composite _ Z Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
+      θ (X ⊗ (ptd_composite _ hs Z Z'))  ;; #H (α_functor _ (U Z) (U Z') X )  =
       (α_functor _ (U Z) (U Z') (H X) : functor_compose hs hs _ _  ⇒ _ ) ;;  
       θ (X ⊗ Z') øø (U Z) ;; θ ((functor_compose hs hs (U Z') X) ⊗ Z) .
 
@@ -345,8 +346,8 @@ Qed.
 *)
 
 Lemma θ_nat_1_pointwise (X X' : EndC) (α : X ⇒ X') (Z : Ptd) (c : C)
-  :  pr1 (# H α) ((pr1 Z) c);; pr1 (θ (X' ⊗ Z)) c =
-       pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 Z))) c.
+  :  pr1 (# H α) ((pr1 (pr1 Z)) c);; pr1 (θ (X' ⊗ Z)) c =
+       pr1 (θ (X ⊗ Z)) c;; pr1 (# H (α ∙∙ nat_trans_id (pr1 (pr1 Z)))) c.
 Proof.
   set (t := θ_nat_1 _ _ α Z).
   set (t' := nat_trans_eq_weq _ _ hs _ _ _ _ t c);
@@ -379,7 +380,7 @@ Proof.
 Qed.
 
 Lemma θ_nat_2_pointwise (X : EndC) (Z Z' : Ptd) (f : Z ⇒ Z') (c : C)
-  :  # (pr1 (H X)) ((pr1 f) c);; pr1 (θ (X ⊗ Z')) c =
+  :  # (pr1 (H X)) ((pr1 (pr1 f)) c);; pr1 (θ (X ⊗ Z')) c =
        pr1 (θ (X ⊗ Z)) c;; pr1 (# H (identity X ∙∙ pr1 f)) c .
 Proof.
   set (t:=θ_nat_2 X _ _ f).

@@ -75,7 +75,7 @@ Definition τ (T : Alg) : pr1 (H (U T)) ⟶ pr1 (U T) := pr2 T.
 Definition bracket (T : Alg) : UU := 
   ∀ (Z : Ptd) (f : Z ⇒ T), iscontr 
    (Σ h : (U T) ∙ (U Z)  ⇒ U T,
-     (#U f = (ptd_pt _ (pr1 T)) øø (U Z) ;; h) ×
+     (#U f = (ptd_pt _ _ (pr1 T)) øø (U Z) ;; h) ×
      (θ (U T ⊗ Z) ;; #H h ;; τ _  = τ _ øø ((U Z)) ;;  h )).
 
 Definition hss : UU := Σ T : Alg, bracket T.
@@ -90,7 +90,7 @@ Definition fbracket (T : hss) {Z : Ptd} (f : Z ⇒ T)
 
 Definition fbracket_unique_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ (α : functor_composite (U Z)(U T) ⟶ pr1 (U T)),
-     (∀ c : C, pr1 (#U f) c = ptd_pt _ (pr1 (pr1 T)) (pr1 (U Z) c) ;; α c) →
+     (∀ c : C, pr1 (#U f) c = pr1 (ptd_pt _ _ (pr1 (pr1 T))) (pr1 (U Z) c) ;; α c) →
      (∀ c : C, pr1 (θ (U T ⊗ Z))  c ;; pr1 (#H α) c ;; τ _ c = 
         τ _ (pr1 (U Z) c) ;; α c) → α = fbracket T f.
 Proof.
@@ -101,7 +101,7 @@ Qed.
 
 Definition fbracket_unique (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
-     (#U f = ptd_pt _ (pr1 (pr1 T)) øø ((U Z)) ;; α) →
+     (#U f = ptd_pt _ _ (pr1 (pr1 T)) øø ((U Z)) ;; α) →
      (θ (U T ⊗ Z) ;; #H α ;; τ _ = τ _ øø (U Z) ;; α) 
    → α = fbracket T f.
 Proof.
@@ -112,7 +112,7 @@ Qed.
 
 Definition fbracket_unique_target_pointwise (T : hss) {Z : Ptd} (f : Z ⇒ T) 
   : ∀ α : functor_composite (U Z)(U T) ⟶ pr1 (U T),
-     (#U f =  (ptd_pt _ ((pr1 (pr1 T)))) øø U Z ;; α) →
+     (#U f =  (ptd_pt _ _ ((pr1 (pr1 T)))) øø U Z ;; α) →
      (θ (U T ⊗ Z) ;; #H α ;; τ _ = τ _ øø U Z ;; α) 
    → ∀ c, α c = pr1 (fbracket T f) c.
 Proof.
@@ -124,7 +124,7 @@ Qed.
 (** Properties of [fbracket] by definition: commutative diagrams *)
 
 Lemma fbracket_η (T : hss) : ∀ {Z : Ptd} (f : Z ⇒ T),
-   #U f = (ptd_pt _  (pr1 (pr1 T))) øø U Z ;;  (fbracket T f).
+   #U f = (ptd_pt _  _ (pr1 (pr1 T))) øø U Z ;;  (fbracket T f).
 Proof.
   intros Z f.
   exact (pr1 (pr2 (pr1 (pr2 T Z f)))).
@@ -147,7 +147,7 @@ Proof.
   apply fbracket_unique_pointwise.
   - simpl. intro c.
     rewrite assoc.
-    set (H':=nat_trans_ax (ptd_pt _ (pr1 (pr1 T)) )).
+    set (H':=nat_trans_ax (ptd_pt _ _ (pr1 (pr1 T)) )).
     simpl in H'.
     rewrite <- H'; clear H'.
     rewrite <- assoc.
@@ -281,7 +281,6 @@ Proof.
   eapply weqcomp.
   - apply hssMor_eq1.
   - apply eq_ptd_mor.
-    apply hs.
 Defined.
 
 End hssMor_equality.
