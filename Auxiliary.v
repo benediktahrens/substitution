@@ -12,6 +12,15 @@ Require Import UnicodeNotations.
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
+Lemma transportf_total2 (A : UU) (B : A -> UU) (C : A -> UU) (xy xy' : total2 B)
+      (p : xy = xy') t :
+  transportf (fun x : total2 B => C (pr1 x)) p t =
+  transportf (fun x : A => C x) (base_paths _ _ p) t.
+Proof.
+  destruct p.
+  apply idpath.
+Defined.
+
 Lemma transportf_idpath (A : UU) (B : A -> UU) (a : A) (b : B a)
 : transportf _ (idpath a) b = b.
 Proof.
